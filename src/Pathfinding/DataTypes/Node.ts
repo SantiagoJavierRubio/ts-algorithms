@@ -21,4 +21,5 @@ export class Node {
 
 export interface Map {
     data: Node[]
+    print(data?: Node[]): void
 }

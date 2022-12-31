@@ -10,7 +10,9 @@
     "test": "mocha -r ts-node/register src/**/tests/**/*.test.ts --slow 0 --timeout 10000"
   },
   "dependencies": {
+    "@types/node": "^18.11.18",
     "@types/randomstring": "^1.1.8",
+    "canvas": "^2.11.0",
     "typescript": "^4.8.3"
   },
   "devDependencies": {

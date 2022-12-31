@@ -16,6 +16,10 @@ export class Dijkstra implements Pathfinder {
         const heap = [this.startNode];
         while(heap.length > 0) {
             const current = heap.shift();
+            if(current?.isTarget) {
+                current.setVisited()
+                break;
+            };
             current?.neighbours.forEach(neighbour => {
                 if(!neighbour.visited && !neighbour.isWall) {
                     neighbour.setValue(current.value+1)
@@ -34,8 +38,11 @@ export class Dijkstra implements Pathfinder {
     }
     printSolution(): void {
         const t = this.map.data.find(node => node.isTarget)
-        if(!this.solvable || !t) return console.log('No solution available')
+        if(!this.solvable || !t) {
+            this.map.print()
+            return console.log('No solution available')
+        } 
         const path = this.calculatePath([t])  
-        return console.log(path.map(node => node.print()))
+        return this.map.print(path)
     }
 }
