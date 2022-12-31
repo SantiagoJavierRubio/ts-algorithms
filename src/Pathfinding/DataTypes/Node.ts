@@ -1,18 +1,33 @@
 export class Node {
     constructor(
-        public value: number = 0,
-        public neighbours: Node[] = [],
+        public index: number,
+        public fValue: number = 0,
+        public hValue: number = 0,
+        public gValue: number = 0,
+        public neighbours: number[] = [],
         public isTarget: boolean = false,
         public isStart: boolean = false,
         public isWall: boolean = false,
-        public visited: boolean =  false
+        public visited: boolean =  false,
+        public comesFrom: number | undefined = undefined
     ) {}
-    setNeighbours(n: Node[]) {
+    setNeighbours(n: number[]) {
         this.neighbours = n
     }
-    setValue(val: number) {}
+    setFValue(val: number) {
+        this.fValue = val 
+    }
+    setGValue(val: number) {
+        this.gValue = val 
+    }
+    setHValue(val: number) {
+        this.hValue = val 
+    }
     setVisited() {
         this.visited = true;
+    }
+    setComesFrom(n?: number) {
+        this.comesFrom = n
     }
     print(): string {
         return ''
@@ -21,5 +36,8 @@ export class Node {
 
 export interface Map {
     data: Node[]
-    print(data?: Node[]): void
+    wallChance: number
+    calculateDistance(a: number, b: number): number
+    cleanData(): void
+    print(data?: number[], name?: string): void
 }

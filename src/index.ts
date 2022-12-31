@@ -1,11 +1,26 @@
 import { Maze } from "./Pathfinding/DataTypes/Maze";
 import { Dijkstra } from "./Pathfinding/Dijkstra";
+import { Astar } from "./Pathfinding/Astar";
 
-const m = new Maze(20);
+console.time('create_maze')
+const m = new Maze(2000, undefined, true);
+console.timeEnd('create_maze')
 
-const d = new Dijkstra(m)
-
-d.solve();
-d.printSolution();
+const astar = new Astar(m);
+// const dijkstra = new Dijkstra(m)
 
 
+// console.time('dijkstra')
+// dijkstra.solve()
+// console.timeEnd('dijkstra')
+// const dSolution = dijkstra.getSolution()
+// dijkstra.printSolution()
+
+console.time('astar')
+astar.solve()
+console.timeEnd('astar')
+const aSolution = astar.getSolution()
+astar.printSolution()
+
+
+// console.log(dSolution.length === aSolution.length)

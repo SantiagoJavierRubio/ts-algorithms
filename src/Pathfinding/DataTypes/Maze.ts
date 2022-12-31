@@ -9,17 +9,15 @@ interface coordinates {
 
 export class Cell extends Node {
     constructor(
+        index: number,
         public coordinates: coordinates,
         public isWall: boolean = false,
         public isStart: boolean = false,
         public isTarget: boolean = false,
-        public value: number = 0
+        public fValue: number = 0
     ) {
-        super();
+        super(index);
         if(isTarget || isStart) this.isWall = false
-    }
-    setValue(val: number) {
-        this.value = val
     }
     print(): string {
         return `(${this.coordinates.x},${this.coordinates.y})`
@@ -29,12 +27,12 @@ export class Cell extends Node {
 export class Maze implements Map {
     public data: Cell[] = []
     public height: number
-    private canvas: Canvas
-    constructor(public width: number, height?: number) {
+    private canvas?: Canvas
+    constructor(public width: number, height?: number, draw: boolean = false, public wallChance: number = 0) {
         this.height = height || width;
         this.fillMaze()
         this.calcNeighbours();
-        this.canvas = createCanvas(this.width*10, this.height*10)
+        this.canvas = draw ? createCanvas(this.width*10, this.height*10) : undefined
     }
     private fillMaze() {
         const start = [Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
@@ -43,8 +41,9 @@ export class Maze implements Map {
         for(let i=0; i<this.height; i++) {
             for(let j=0; j<this.width; j++) {
                 this.data[i*this.width+j] = new Cell(
+                    i*this.width+j,
                     {x: j, y: i},
-                    Math.random() < 0.333,
+                    Math.random() < this.wallChance,
                     start[0] === j && start[1] === i,
                     target[0] === j && target[1] === i
                 )
@@ -54,19 +53,36 @@ export class Maze implements Map {
     private calcNeighbours() {
         this.data.forEach(cell => {
             const n = []
-            cell.coordinates.x > 0 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)-1])
-            cell.coordinates.x < this.width-1 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)+1])
-            cell.coordinates.y > 0 && n.push(this.data[(cell.coordinates.y-1)*this.width+cell.coordinates.x])
-            cell.coordinates.y < this.height-1 && n.push(this.data[(cell.coordinates.y+1)*this.width+cell.coordinates.x])
+            cell.coordinates.x > 0 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)-1].index)
+            cell.coordinates.x < this.width-1 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)+1].index)
+            cell.coordinates.y > 0 && n.push(this.data[(cell.coordinates.y-1)*this.width+cell.coordinates.x].index)
+            cell.coordinates.y < this.height-1 && n.push(this.data[(cell.coordinates.y+1)*this.width+cell.coordinates.x].index)
             cell.setNeighbours(n)
         })
     }
-    print(path?: Cell[]) {
+    cleanData() {
+        this.data.forEach(node => {
+            node.setComesFrom(undefined);
+            node.setFValue(0);
+            node.setGValue(0);
+            node.setHValue(0);
+            node.visited = false;
+        })
+    }
+    calculateDistance(a: number, b: number): number {
+        let nodeA = this.data[a];
+        let nodeB = this.data[b];
+        let c1 = Math.pow((nodeA.coordinates.x - nodeB.coordinates.x), 2)
+        let c2 = Math.pow((nodeA.coordinates.y - nodeB.coordinates.y), 2)
+        return Math.sqrt(c1+c2)
+    }
+    print(path?: number[], name?: string) {
+        if(!this.canvas) return;
         const ctx = this.canvas.getContext('2d')
         this.data.forEach(node => {
-            ctx.fillStyle = node.isWall ? "#000" : "#fff";
+            ctx.fillStyle = node.isWall ? "#000" : node.visited ? '#ADD8E6' : "#fff";
             ctx.fillRect(node.coordinates.x*10, node.coordinates.y*10, 10, 10)
-            if(!!path && path.includes(node)) {
+            if(!!path && path.includes(node.index)) {
                 ctx.fillStyle = "#0f0"
                 ctx.fillRect(node.coordinates.x*10+2, node.coordinates.y*10+2, 6, 6)
             }
@@ -78,6 +94,7 @@ export class Maze implements Map {
             }
         })
         const buffer = this.canvas.toBuffer('image/png')
-        fs.writeFileSync(`./src/Pathfinding/images/mazes/maze_${this.width}x${this.height}-${Date.now()}.png`, buffer);
+        let solved = !!path ? 'solved' : 'raw'
+        fs.writeFileSync(`./src/Pathfinding/images/mazes/maze_${this.width}x${this.height}-${solved}${name ? '_with_'+name : ''}-${Date.now()}.png`, buffer);
     }
 }
