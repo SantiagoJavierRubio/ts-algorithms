@@ -1,4 +1,4 @@
-import { Node, Map } from "./Node";
+import { Node, NodeMap } from "./Node";
 import { createCanvas, Canvas } from "canvas";
 import fs from "fs";
 
@@ -24,7 +24,7 @@ export class Cell extends Node {
     }
 }
 
-export class Maze implements Map {
+export class Maze implements NodeMap {
     public data: Cell[] = []
     public height: number
     private canvas?: Canvas

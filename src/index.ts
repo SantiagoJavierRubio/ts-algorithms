@@ -3,7 +3,7 @@ import { Dijkstra } from "./Pathfinding/Dijkstra";
 import { Astar } from "./Pathfinding/Astar";
 
 console.time('create_maze')
-const m = new Maze(100, undefined, true, 0.2, 50);
+const m = new Maze(3000, undefined, false, 0.2, 50);
 console.timeEnd('create_maze')
 
 const astar = new Astar(m);

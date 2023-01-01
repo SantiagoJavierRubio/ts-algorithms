@@ -1,10 +1,10 @@
 import { Pathfinder } from "./Pathfinder";
-import { Map, Node } from "./DataTypes/Node";
+import { NodeMap, Node } from "./DataTypes/Node";
 
 export class Dijkstra implements Pathfinder {
     private startNode: Node
     private solvable: boolean = false;
-    constructor(public map: Map) {
+    constructor(public map: NodeMap) {
         this.startNode = this.findStartingNode() || this.map.data[0]
     }
     private findStartingNode(): Node | undefined {

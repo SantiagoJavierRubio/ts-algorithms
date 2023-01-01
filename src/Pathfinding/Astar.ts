@@ -1,11 +1,12 @@
 import { Pathfinder } from "./Pathfinder";
-import { Map, Node } from "./DataTypes/Node";
+import { NodeMap, Node } from "./DataTypes/Node";
+import * as TimSort from "timsort"
 
 export class Astar implements Pathfinder {
     private startNode: Node | undefined
     private endNode: Node | undefined
     private solvable: boolean = false
-    constructor(public map: Map) {
+    constructor(public map: NodeMap) {
         this.startNode = this.map.data.find(node => node.isStart)
         this.endNode = this.map.data.find(node => node.isTarget)
     }
@@ -21,9 +22,8 @@ export class Astar implements Pathfinder {
         const open = [this.startNode.index]
         const closed: Set<number> = new Set<number>()
         while(open.length > 0) {
-            open.sort((a,b) => this.map.data[a].fValue - this.map.data[b].fValue)
-            // console.log("a", this.map.data[open[0]])
-            // console.log("b", this.map.data[open[1]])
+            TimSort.sort<number>(open, (a, b) => this.map.data[a].fValue - this.map.data[b].fValue)
+            // open.sort((a,b) => this.map.data[a].fValue - this.map.data[b].fValue)
             const currentIndex = open.shift()
             if(currentIndex === undefined) break;
             const current = this.map.data[currentIndex]
@@ -41,21 +41,7 @@ export class Astar implements Pathfinder {
                     open.push(nIndex)
                 }
             }
-            // current.neighbours.filter(n => !closed.has(n) && !this.map.data[n].isWall)
-            // .forEach(nIndex => {
-            //     let neighbour = this.map.data[nIndex]
-            //     if((neighbour.gValue > current.gValue+1) && !neighbour.isWall) {
-            //         neighbour.setGValue(current.gValue+1)
-            //         neighbour.setHValue(this.map.calculateDistance(this.endNode?.index || 0, nIndex))
-            //         neighbour.setFValue(neighbour.gValue+neighbour.hValue)
-            //         neighbour.setComesFrom(currentIndex)
-            //         open.push(nIndex)
-            //     }
-            // })
         }
-        // console.log('closed', closed.size)
-        // console.log('visited', this.map.data.filter(n => n.visited).length)
-        // console.log(this.startNode.neighbours.map(nIndex => this.map.data[nIndex]))
         this.solvable = !!closed.has(this.endNode.index)
     }
     private calculatePath(prevNodes: number[]): number[] {

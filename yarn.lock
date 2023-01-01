@@ -380,6 +380,11 @@
   resolved "https://registry.yarnpkg.com/@types/randomstring/-/randomstring-1.1.8.tgz#799ce94adbe162964e655df954bf3dc85576747d"
   integrity sha512-NPOJcW+TTjT9Qiog0UjSoG3Sj24c7EfzZO39BU9E61D7fQtwNmBNblyQhSsK9+5s9Fm0o31rvX+ZyZkpE/c7jA==
 
+"@types/timsort@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@types/timsort/-/timsort-0.3.0.tgz#f93fd394b89b5119e22e19ae2349f5a85f185d4b"
+  integrity sha512-SFjNmiiq4uCs9eXvxbaJMa8pnmlepV8dT2p0nCfdRL1h/UU7ZQFsnCLvtXRHTb3rnyILpQz4Kh8JoTqvDdgxYw==
+
 "@typescript-eslint/eslint-plugin@^5.37.0":
   version "5.37.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.37.0.tgz#5ccdd5d9004120f28fc6e717fb4b5c9bddcfbc04"
@@ -2221,6 +2226,11 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
+
+timsort@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
+  integrity sha512-qsdtZH+vMoCARQtyod4imc2nIJwg9Cc7lPRrw9CzF8ZKR0khdr8+2nX80PBhET3tcyTtJDxAffGh2rXH4tyU8A==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"

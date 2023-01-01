@@ -34,7 +34,7 @@ export class Node {
     }
 }
 
-export interface Map {
+export interface NodeMap {
     data: Node[]
     wallChance: number
     resolution: number
