@@ -37,7 +37,9 @@ export class Node {
 export interface Map {
     data: Node[]
     wallChance: number
+    resolution: number
+    draw: boolean
     calculateDistance(a: number, b: number): number
     cleanData(): void
-    print(data?: number[], name?: string): void
+    print(data?: number[], name?: string, debug?: boolean): void
 }

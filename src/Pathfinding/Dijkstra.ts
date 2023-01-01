@@ -49,13 +49,16 @@ export class Dijkstra implements Pathfinder {
         } 
         return this.calculatePath([t.index])  
     }
-    printSolution(): void {
+    printSolution(debug: boolean = false): void {
         const t = this.map.data.find(node => node.isTarget)
         if(!this.solvable || !t) {
             this.map.print()
             return console.log('No solution available')
         } 
+        if(!this.map.draw) return;
+        console.log("Printing Dijkstra solution...")
+        console.log("Debug: ", debug)
         const path = this.calculatePath([t.index])  
-        return this.map.print(path, 'Dijkstra')
+        return this.map.print(path, 'Dijkstra', debug)
     }
 }

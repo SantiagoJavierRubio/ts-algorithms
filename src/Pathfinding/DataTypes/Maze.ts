@@ -28,20 +28,26 @@ export class Maze implements Map {
     public data: Cell[] = []
     public height: number
     private canvas?: Canvas
-    constructor(public width: number, height?: number, draw: boolean = false, public wallChance: number = 0) {
+    constructor(
+        public width: number,
+        height?: number,
+        public draw: boolean = false,
+        public wallChance: number = 0,
+        public resolution: number = 10
+    ) {
         this.height = height || width;
         this.fillMaze()
         this.calcNeighbours();
-        this.canvas = draw ? createCanvas(this.width*10, this.height*10) : undefined
+        this.canvas = draw ? createCanvas(this.width*this.resolution, this.height*this.resolution) : undefined
     }
     private fillMaze() {
-        const start = [Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
+        const start = [0,0]//[Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
         const target = [Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
         this.data = new Array(this.height*this.width);
         for(let i=0; i<this.height; i++) {
             for(let j=0; j<this.width; j++) {
                 this.data[i*this.width+j] = new Cell(
-                    i*this.width+j,
+                    i*this.width + j,
                     {x: j, y: i},
                     Math.random() < this.wallChance,
                     start[0] === j && start[1] === i,
@@ -72,25 +78,47 @@ export class Maze implements Map {
     calculateDistance(a: number, b: number): number {
         let nodeA = this.data[a];
         let nodeB = this.data[b];
-        let c1 = Math.pow((nodeA.coordinates.x - nodeB.coordinates.x), 2)
-        let c2 = Math.pow((nodeA.coordinates.y - nodeB.coordinates.y), 2)
+        let c1 = Math.pow((nodeB.coordinates.x - nodeA.coordinates.x), 2)
+        let c2 = Math.pow((nodeB.coordinates.y - nodeA.coordinates.y), 2)
         return Math.sqrt(c1+c2)
     }
-    print(path?: number[], name?: string) {
+    print(path?: number[], name?: string, debug: boolean = false) {
         if(!this.canvas) return;
         const ctx = this.canvas.getContext('2d')
         this.data.forEach(node => {
             ctx.fillStyle = node.isWall ? "#000" : node.visited ? '#ADD8E6' : "#fff";
-            ctx.fillRect(node.coordinates.x*10, node.coordinates.y*10, 10, 10)
+            ctx.fillRect(node.coordinates.x*this.resolution, node.coordinates.y*this.resolution, this.resolution, this.resolution)
+            let margin = Math.floor(this.resolution/5)
             if(!!path && path.includes(node.index)) {
                 ctx.fillStyle = "#0f0"
-                ctx.fillRect(node.coordinates.x*10+2, node.coordinates.y*10+2, 6, 6)
+                ctx.fillRect(
+                    node.coordinates.x*this.resolution + margin,
+                    node.coordinates.y*this.resolution + margin,
+                    this.resolution - margin*2,
+                    this.resolution - margin*2
+                )
             }
             if(node.isTarget || node.isStart) {
                 ctx.fillStyle = "#f00"
-                ctx.font = "bold 10pt"
+                ctx.font = `${Math.floor(this.resolution/2)}px`
                 ctx.textAlign = "center";
-                ctx.fillText(node.isStart ? "S" : "T", node.coordinates.x*10+5, node.coordinates.y*10+10)
+                ctx.fillText(
+                    node.isStart ? "S" : "T",
+                    node.coordinates.x*this.resolution + this.resolution/2,
+                    node.coordinates.y*this.resolution + this.resolution/2 + margin,
+                )
+            } 
+            else if(debug) {
+                ctx.fillStyle = "#000";
+                ctx.font = "10px";   
+                ctx.textAlign = "left";
+                const text = `f=${node.fValue.toFixed(2)}\ng=${node.gValue}\nh=${node.hValue.toFixed(2)}`
+                ctx.fillText(
+                    text, //node.fValue.toFixed(2),
+                    node.coordinates.x*this.resolution + margin,
+                    node.coordinates.y*this.resolution + margin,
+                    this.resolution
+                )
             }
         })
         const buffer = this.canvas.toBuffer('image/png')

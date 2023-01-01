@@ -4,5 +4,5 @@ export interface Pathfinder {
     map: Map;
     solve(): void;
     getSolution(): number[];
-    printSolution(): void;
+    printSolution(debug?: boolean): void;
 }

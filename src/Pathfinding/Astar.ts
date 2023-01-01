@@ -12,30 +12,50 @@ export class Astar implements Pathfinder {
     solve(): void {
         this.map.cleanData()
         if(!this.startNode || !this.endNode) return
-        this.map.data.forEach(node => !node.isStart && node.setGValue(Infinity))
+        this.map.data.forEach(node => {
+            if(!node.isStart) {
+                node.setGValue(Infinity)
+                node.setFValue(Infinity)
+            }
+        })
         const open = [this.startNode.index]
         const closed: Set<number> = new Set<number>()
         while(open.length > 0) {
             open.sort((a,b) => this.map.data[a].fValue - this.map.data[b].fValue)
+            // console.log("a", this.map.data[open[0]])
+            // console.log("b", this.map.data[open[1]])
             const currentIndex = open.shift()
             if(currentIndex === undefined) break;
             const current = this.map.data[currentIndex]
-            current.visited = true;
-            closed.add(current.index)
+            current.setVisited();
+            closed.add(currentIndex)
             if(current.isTarget) break;
-            current.neighbours.filter(n => !closed.has(n) && !this.map.data[n].isWall)
-            .forEach(nIndex => {
-                let neighbour = this.map.data[nIndex]
-                if(neighbour.isWall) closed.add(nIndex)
-                if(neighbour.gValue > current.gValue+1 && !neighbour.isWall) {
+            for(let nIndex of current.neighbours) {
+                let neighbour = this.map.data[nIndex];
+                if(closed.has(nIndex) || neighbour.isWall) continue;
+                if(neighbour.gValue > current.gValue+1) {
                     neighbour.setGValue(current.gValue+1)
-                    neighbour.setHValue(this.map.calculateDistance(currentIndex, this.endNode?.index || 0))
+                    neighbour.setHValue(this.map.calculateDistance(this.endNode?.index || 0, nIndex))
                     neighbour.setFValue(neighbour.gValue+neighbour.hValue)
                     neighbour.setComesFrom(currentIndex)
                     open.push(nIndex)
                 }
-            })
+            }
+            // current.neighbours.filter(n => !closed.has(n) && !this.map.data[n].isWall)
+            // .forEach(nIndex => {
+            //     let neighbour = this.map.data[nIndex]
+            //     if((neighbour.gValue > current.gValue+1) && !neighbour.isWall) {
+            //         neighbour.setGValue(current.gValue+1)
+            //         neighbour.setHValue(this.map.calculateDistance(this.endNode?.index || 0, nIndex))
+            //         neighbour.setFValue(neighbour.gValue+neighbour.hValue)
+            //         neighbour.setComesFrom(currentIndex)
+            //         open.push(nIndex)
+            //     }
+            // })
         }
+        // console.log('closed', closed.size)
+        // console.log('visited', this.map.data.filter(n => n.visited).length)
+        // console.log(this.startNode.neighbours.map(nIndex => this.map.data[nIndex]))
         this.solvable = !!closed.has(this.endNode.index)
     }
     private calculatePath(prevNodes: number[]): number[] {
@@ -49,12 +69,15 @@ export class Astar implements Pathfinder {
         }
         return this.calculatePath([this.endNode.index])
     }
-    printSolution(): void {
+    printSolution(debug: boolean = false): void {
         if(!this.solvable || !this.endNode) {
             return console.log('No solution available')
         }
+        if(!this.map.draw) return;
+        console.log("Printing A* solution...")
+        console.log("Debug: ", debug)
         const path = this.getSolution()
-        return this.map.print(path, 'Astar');
+        return this.map.print(path, 'Astar', debug);
     }
 }
 
