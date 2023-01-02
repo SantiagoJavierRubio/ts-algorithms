@@ -1,6 +1,5 @@
 import { Pathfinder } from "./Pathfinder";
 import { NodeMap, Node } from "./DataTypes/Node";
-import * as TimSort from "timsort"
 
 export class Astar implements Pathfinder {
     private startNode: Node | undefined
@@ -19,12 +18,13 @@ export class Astar implements Pathfinder {
                 node.setFValue(Infinity)
             }
         })
-        const open = [this.startNode.index]
+        const open: {[key: string]: number[]} = {'0': [this.startNode.index]}
         const closed: Set<number> = new Set<number>()
-        while(open.length > 0) {
-            TimSort.sort<number>(open, (a, b) => this.map.data[a].fValue - this.map.data[b].fValue)
-            // open.sort((a,b) => this.map.data[a].fValue - this.map.data[b].fValue)
-            const currentIndex = open.shift()
+        while(Object.keys(open).length > 0) {
+            const fNodes = Object.keys(open).sort((a,b) => parseInt(a)-parseInt(b))
+            const minFNodes = open[fNodes[0]].sort((a,b) => a-b)
+            const currentIndex = minFNodes.shift();
+            if(minFNodes.length===0) delete open[fNodes[0]]
             if(currentIndex === undefined) break;
             const current = this.map.data[currentIndex]
             current.setVisited();
@@ -33,12 +33,14 @@ export class Astar implements Pathfinder {
             for(let nIndex of current.neighbours) {
                 let neighbour = this.map.data[nIndex];
                 if(closed.has(nIndex) || neighbour.isWall) continue;
-                if(neighbour.gValue > current.gValue+1) {
-                    neighbour.setGValue(current.gValue+1)
+                let distanceBetweenNodes = this.map.calculateDistance(currentIndex, nIndex)
+                if(neighbour.gValue > current.gValue+distanceBetweenNodes) {
+                    neighbour.setGValue(current.gValue+distanceBetweenNodes)
                     neighbour.setHValue(this.map.calculateDistance(this.endNode?.index || 0, nIndex))
                     neighbour.setFValue(neighbour.gValue+neighbour.hValue)
                     neighbour.setComesFrom(currentIndex)
-                    open.push(nIndex)
+                    open[`${Math.floor(neighbour.fValue)}`] = 
+                        open[`${Math.floor(neighbour.fValue)}`] ? [...open[`${Math.floor(neighbour.fValue)}`], nIndex] : [nIndex]
                 }
             }
         }

@@ -33,7 +33,8 @@ export class Maze implements NodeMap {
         height?: number,
         public draw: boolean = false,
         public wallChance: number = 0,
-        public resolution: number = 10
+        public resolution: number = 10,
+        public allowDiagonals: boolean = false
     ) {
         this.height = height || width;
         this.fillMaze()
@@ -41,7 +42,7 @@ export class Maze implements NodeMap {
         this.canvas = draw ? createCanvas(this.width*this.resolution, this.height*this.resolution) : undefined
     }
     private fillMaze() {
-        const start = [0,0]//[Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
+        const start = [Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
         const target = [Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)]
         this.data = new Array(this.height*this.width);
         for(let i=0; i<this.height; i++) {
@@ -59,10 +60,22 @@ export class Maze implements NodeMap {
     private calcNeighbours() {
         this.data.forEach(cell => {
             const n = []
-            cell.coordinates.x > 0 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)-1].index)
-            cell.coordinates.x < this.width-1 && n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)+1].index)
-            cell.coordinates.y > 0 && n.push(this.data[(cell.coordinates.y-1)*this.width+cell.coordinates.x].index)
-            cell.coordinates.y < this.height-1 && n.push(this.data[(cell.coordinates.y+1)*this.width+cell.coordinates.x].index)
+            let up = cell.coordinates.y > 0
+            let down = cell.coordinates.y < this.height-1
+            let left = cell.coordinates.x > 0
+            let right = cell.coordinates.x < this.width-1
+            if(left) {
+                n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)-1].index)
+                this.allowDiagonals && up && n.push(this.data[((cell.coordinates.y-1)*this.width+cell.coordinates.x)-1].index)
+                this.allowDiagonals && down && n.push(this.data[((cell.coordinates.y+1)*this.width+cell.coordinates.x)-1].index)
+            } 
+            if(right){
+                n.push(this.data[(cell.coordinates.y*this.width+cell.coordinates.x)+1].index)
+                this.allowDiagonals && up && n.push(this.data[((cell.coordinates.y-1)*this.width+cell.coordinates.x)+1].index)
+                this.allowDiagonals && down && n.push(this.data[((cell.coordinates.y+1)*this.width+cell.coordinates.x)+1].index)
+            } 
+            up && n.push(this.data[(cell.coordinates.y-1)*this.width+cell.coordinates.x].index)
+            down && n.push(this.data[(cell.coordinates.y+1)*this.width+cell.coordinates.x].index) 
             cell.setNeighbours(n)
         })
     }
@@ -114,7 +127,7 @@ export class Maze implements NodeMap {
                 ctx.textAlign = "left";
                 const text = `f=${node.fValue.toFixed(2)}\ng=${node.gValue}\nh=${node.hValue.toFixed(2)}`
                 ctx.fillText(
-                    text, //node.fValue.toFixed(2),
+                    text,
                     node.coordinates.x*this.resolution + margin,
                     node.coordinates.y*this.resolution + margin,
                     this.resolution

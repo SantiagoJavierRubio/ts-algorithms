@@ -27,9 +27,12 @@ export class Dijkstra implements Pathfinder {
             current.neighbours.forEach(nIndex => {
                 let neighbour = this.map.data[nIndex]
                 if(!neighbour.visited && !neighbour.isWall) {
-                    neighbour.setFValue(current.fValue+1)
-                    neighbour.setComesFrom(current.index)
-                    heap.add(neighbour.index)
+                    let newF = current.fValue + this.map.calculateDistance(currentIndex, nIndex)
+                    if(newF < neighbour.fValue){
+                        neighbour.setComesFrom(currentIndex)
+                        neighbour.setFValue(newF)
+                    }
+                    heap.add(nIndex)
                 }
             })
             heap.delete(currentIndex)
