@@ -16,6 +16,9 @@ export class Astar implements Pathfinder {
             if(!node.isStart) {
                 node.setGValue(Infinity)
                 node.setFValue(Infinity)
+            } else {
+                node.setHValue(this.map.calculateDistance(node.index, this.endNode?.index || 0))
+                node.setFValue(node.hValue)
             }
         })
         const open: {[key: string]: number[]} = {'0': [this.startNode.index]}
@@ -35,10 +38,16 @@ export class Astar implements Pathfinder {
                 if(closed.has(nIndex) || neighbour.isWall) continue;
                 let distanceBetweenNodes = this.map.calculateDistance(currentIndex, nIndex)
                 if(neighbour.gValue > current.gValue+distanceBetweenNodes) {
-                    neighbour.setGValue(current.gValue+distanceBetweenNodes)
-                    neighbour.setHValue(this.map.calculateDistance(this.endNode?.index || 0, nIndex))
-                    neighbour.setFValue(neighbour.gValue+neighbour.hValue)
-                    neighbour.setComesFrom(currentIndex)
+                    let h = this.map.calculateDistance(this.endNode?.index || 0, nIndex)
+                    let newF = current.gValue+distanceBetweenNodes+h
+                    if(newF < neighbour.fValue) {
+                        neighbour.setGValue(current.gValue+distanceBetweenNodes)
+                        neighbour.setHValue(h)
+                        neighbour.setFValue(newF)
+                        if(!neighbour.comesFrom) neighbour.setComesFrom(currentIndex)
+                        else if(this.map.data[neighbour.comesFrom].fValue >= current.fValue 
+                            || this.map.data[neighbour.comesFrom].hValue > current.hValue) neighbour.setComesFrom(currentIndex)
+                    }
                     open[`${Math.floor(neighbour.fValue)}`] = 
                         open[`${Math.floor(neighbour.fValue)}`] ? [...open[`${Math.floor(neighbour.fValue)}`], nIndex] : [nIndex]
                 }

@@ -31,10 +31,10 @@ export class Maze implements NodeMap {
     constructor(
         public width: number,
         height?: number,
-        public draw: boolean = false,
+        public allowDiagonals: boolean = false,
         public wallChance: number = 0,
+        public draw: boolean = false,
         public resolution: number = 10,
-        public allowDiagonals: boolean = false
     ) {
         this.height = height || width;
         this.fillMaze()
@@ -125,7 +125,7 @@ export class Maze implements NodeMap {
                 ctx.fillStyle = "#000";
                 ctx.font = "10px";   
                 ctx.textAlign = "left";
-                const text = `f=${node.fValue.toFixed(2)}\ng=${node.gValue}\nh=${node.hValue.toFixed(2)}`
+                const text = `f=${node.fValue.toFixed(2)}\ng=${node.gValue.toFixed(2)}\nh=${node.hValue.toFixed(2)}`
                 ctx.fillText(
                     text,
                     node.coordinates.x*this.resolution + margin,
