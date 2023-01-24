@@ -85,7 +85,7 @@ export class Maze implements NodeMap {
             node.setFValue(0);
             node.setGValue(0);
             node.setHValue(0);
-            node.visited = false;
+            node.setVisited(false)
         })
     }
     calculateDistance(a: number, b: number): number {
@@ -93,7 +93,7 @@ export class Maze implements NodeMap {
         let nodeB = this.data[b];
         let c1 = Math.pow((nodeB.coordinates.x - nodeA.coordinates.x), 2)
         let c2 = Math.pow((nodeB.coordinates.y - nodeA.coordinates.y), 2)
-        return Math.sqrt(c1+c2)
+        return Math.floor(Math.sqrt(c1+c2)*10)
     }
     print(path?: number[], name?: string, debug: boolean = false) {
         if(!this.canvas) return;

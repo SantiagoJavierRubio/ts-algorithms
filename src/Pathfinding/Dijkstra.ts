@@ -1,9 +1,11 @@
 import { Pathfinder } from "./Pathfinder";
 import { NodeMap, Node } from "./DataTypes/Node";
+import { PriorityQueue } from "./Helpers/PriorityQueue";
 
 export class Dijkstra implements Pathfinder {
     private startNode: Node
     private solvable: boolean = false;
+    pathDistance: number = Infinity
     constructor(public map: NodeMap) {
         this.startNode = this.findStartingNode() || this.map.data[0]
     }
@@ -15,29 +17,54 @@ export class Dijkstra implements Pathfinder {
         this.map.data.forEach(node => node.setFValue(Infinity))
         this.startNode.setFValue(0);
         const heap: Set<number> = new Set<number>([this.startNode.index]);
-        while(heap.size > 0) {
-            const heapIterator = heap.values()
-            const currentIndex = heapIterator.next().value;
+        const open = new PriorityQueue<number>()
+        open.addElement(this.startNode.index, 0)
+        while(!open.isEmpty()) {
+            const currentIndex = open.getFirst();
             if(currentIndex === undefined) break;
             const current = this.map.data[currentIndex];
+            current.setVisited()
             if(current.isTarget) {
-                current.setVisited()
+                this.pathDistance = current.fValue;
                 break;
             };
             current.neighbours.forEach(nIndex => {
                 let neighbour = this.map.data[nIndex]
+                let newF = current.fValue + this.map.calculateDistance(currentIndex, nIndex)
                 if(!neighbour.visited && !neighbour.isWall) {
-                    let newF = current.fValue + this.map.calculateDistance(currentIndex, nIndex)
+                    neighbour.setVisited()
                     if(newF < neighbour.fValue){
                         neighbour.setComesFrom(currentIndex)
                         neighbour.setFValue(newF)
                     }
-                    heap.add(nIndex)
+                    open.addElement(nIndex, neighbour.fValue)
                 }
             })
-            heap.delete(currentIndex)
-            current.setVisited();
         }
+        // while(heap.size > 0) {
+        //     const heapIterator = heap.values()
+        //     const currentIndex = heapIterator.next().value;
+        //     if(currentIndex === undefined) break;
+        //     const current = this.map.data[currentIndex];
+        //     if(current.isTarget) {
+        //         current.setVisited()
+        //         this.pathDistance = current.fValue;
+        //         break;
+        //     };
+        //     current.neighbours.forEach(nIndex => {
+        //         let neighbour = this.map.data[nIndex]
+        //         if(!neighbour.visited && !neighbour.isWall) {
+        //             let newF = current.fValue + this.map.calculateDistance(currentIndex, nIndex)
+        //             if(newF < neighbour.fValue){
+        //                 neighbour.setComesFrom(currentIndex)
+        //                 neighbour.setFValue(newF)
+        //             }
+        //             heap.add(nIndex)
+        //         }
+        //     })
+        //     heap.delete(currentIndex)
+        //     current.setVisited();
+        // }
         this.solvable = !!this.map.data.find(node => node.isTarget && node.visited)
     }
     private calculatePath(prevNodes: number[]): number[] {

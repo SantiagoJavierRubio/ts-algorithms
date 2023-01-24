@@ -1,27 +1,27 @@
 import { Maze } from "./Pathfinding/DataTypes/Maze";
 import { Dijkstra } from "./Pathfinding/Dijkstra";
 import { Astar } from "./Pathfinding/Astar";
-
-console.time('create_maze')
-const m = new Maze(3500, 3000, true, 0.5, false, 1);
-console.timeEnd('create_maze')
-
-const astar = new Astar(m);
-const dijkstra = new Dijkstra(m)
+import fs from "fs"
 
 
-console.time('dijkstra')
-dijkstra.solve()
-console.timeEnd('dijkstra')
-const dSolution = dijkstra.getSolution()
-// dijkstra.printSolution()
+function run() {
+    const m = new Maze(100, 100, true, 0.48, true, 50);
+    
+    const astar = new Astar(m)
+    const dijkstra = new Dijkstra(m)
+    
+    dijkstra.solve()
+    dijkstra.printSolution(true)
+    const dS = dijkstra.getSolution().length
+    astar.solve()
+    astar.printSolution(true)
+    const aS = astar.getSolution().length
 
-console.time('astar')
-astar.solve()
-console.timeEnd('astar')
-const aSolution = astar.getSolution()
-if(aSolution.length !== dSolution.length) astar.printSolution(true)
+    console.log(dijkstra.pathDistance, dS)
+    console.log(astar.pathDistance, aS)
+    console.log('\n')
+    if(astar.pathDistance !== dijkstra.pathDistance && dS !== aS) process.exit()
+    // if(dijkstra.pathDistance.toFixed(2) !== astar.pathDistance.toFixed(2)) console.log('dif')
+}
 
-
-console.log(dSolution.length)
-console.log(aSolution.length)
+setInterval(run, 1000)

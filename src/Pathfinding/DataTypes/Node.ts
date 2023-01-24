@@ -23,8 +23,8 @@ export class Node {
     setHValue(val: number) {
         this.hValue = val 
     }
-    setVisited() {
-        this.visited = true;
+    setVisited(val: boolean = true) {
+        this.visited = val;
     }
     setComesFrom(n?: number) {
         this.comesFrom = n
